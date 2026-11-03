@@ -338,3 +338,17 @@ body.is-admin .footer{display:none}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 .hero .search{grid-template-columns:1fr 1fr}
 @media (max-width:480px){.hero .search{grid-template-columns:1fr}}
+
+/* Fotos reales de los vehículos */
+.photo{position:relative;aspect-ratio:16/10;border-radius:12px;overflow:hidden;background:var(--surface-2);display:grid;place-items:center}
+.photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.photo .car{display:none;width:86%}
+.photo.nophoto img{display:none}
+.photo.nophoto .car{display:block}
+.photo .credit{position:absolute;right:8px;bottom:8px;font-size:.68rem;background:rgba(0,0,0,.55);color:#fff;padding:2px 7px;border-radius:6px;text-decoration:none}
+.car-card .car-art,.summary .car-art,.done .car-art{padding:0;background:none}
+.car-card .photo{border-radius:0}
+.car-card.off .photo img{filter:grayscale(1)}
+.cat-card .photo{margin:-18px -18px 14px;border-radius:var(--radius) var(--radius) 0 0}
+.item-art .photo{border-radius:10px}
+.done .car-art{max-width:420px;margin:0 auto 6px}

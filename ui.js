@@ -69,6 +69,50 @@ export function carSvg(categoria, color, label = '') {
   </svg>`;
 }
 
+
+/* ---------- Fotos reales (Wikimedia Commons, licencias libres) ---------- */
+const PHOTOS = {
+  'renault sandero': 'Renault_Sandero_R.S._2020_-_BugWarp_01.jpg',
+  'chevrolet onix': 'Chevrolet_Onix_(second_generation,_front_view).jpg',
+  'toyota corolla': 'Toyota_Corolla_sedan_E210_hydrid.jpg',
+  'mazda mazda 3': 'Mazda3_SEDAN_20S_L_Package_2WD_(5BA-BPFP)_left.jpg',
+  'kia sportage': 'Kia_Sportage_(NQ5)_1X7A0326_(edited).jpg',
+  'renault duster': 'Renault_Duster_Mexico.jpg',
+  'toyota hilux': '2021_Toyota_Hilux_Revo_Prerunner_Double-Cab_2.4_Mid.jpg',
+  'ford ranger': '2023_Ford_Ranger_XLS.jpg',
+  'kia picanto': 'Kia_Picanto_X-Line_facelift_001.jpg',
+  'nissan versa': '2023_Nissan_Versa_(N18)_IMG_3105.jpg',
+  'hyundai tucson': 'Hyundai_Tucson_(NX4,_SWB)_IMG_9135.jpg',
+};
+// Foto representativa de cada categoría (para las tarjetas del inicio)
+const CAT_PHOTO = { Compacto: 'kia picanto', Sedan: 'toyota corolla', SUV: 'hyundai tucson', Camioneta: 'toyota hilux' };
+const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim();
+export function photoFile(marca, modelo) {
+  const k = norm(`${marca} ${modelo}`);
+  return PHOTOS[k] || PHOTOS[norm(modelo)] || Object.entries(PHOTOS).find(([n]) => k.includes(n.split(' ').slice(1).join(' ')))?.[1] || null;
+}
+export const photoPage = f => `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(f)}`;
+const photoUrl = (f, w) => `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(f)}?width=${w}`;
+/**
+ * Foto real del vehículo con el dibujo como respaldo si la imagen no carga.
+ */
+export function carPhoto({ marca, modelo, categoria, color }, { w = 640, credit = false } = {}) {
+  const label = `${marca || ''} ${modelo || ''}`.trim();
+  const f = photoFile(marca, modelo);
+  const svg = carSvg(categoria, color, label);
+  if (!f) return `<div class="photo nophoto">${svg}</div>`;
+  return `<div class="photo">
+    <img src="${photoUrl(f, w)}" alt="${esc(label)}" title="${esc(label)} · Foto: Wikimedia Commons" loading="lazy" decoding="async"
+      onerror="this.parentNode.classList.add('nophoto')">
+    ${svg}
+    ${credit ? `<a class="credit" href="${photoPage(f)}" target="_blank" rel="noopener">Foto: Wikimedia Commons</a>` : ''}
+  </div>`;
+}
+export function categoryPhoto(categoria) {
+  const [marca, ...rest] = (CAT_PHOTO[categoria] || '').split(' ');
+  return carPhoto({ marca, modelo: rest.join(' '), categoria, color: 'Plata' }, { w: 480 });
+}
+
 /* ---------- Avisos ---------- */
 export function toast(msg, tone = 'ok') {
   let box = $('#toasts');

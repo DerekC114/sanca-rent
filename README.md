@@ -29,7 +29,7 @@ ejecuta con `SET LOCAL ROLE`, así que **PostgreSQL aplica los permisos reales**
 | Mantenimiento | Programar, iniciar y finalizar mantenimientos; cambiar el estado de la flota |
 | Consulta | Solo lectura (sin datos de clientes ni pagos) |
 
-## Reglas de negocio automatizadas (`sql/09_reglas_automatizadas.sql`)
+## Reglas de negocio automatizadas (`09_reglas_automatizadas.sql`)
 Script nuevo que lleva a la base de datos las reglas del documento que antes no se aplicaban
 (y la mejora propuesta en las conclusiones):
 
@@ -47,16 +47,18 @@ IndexedDB: lo que registres se conserva al recargar, pero **solo en ese navegado
 puede restablecer los datos originales en «Datos».
 
 ## Estructura
+Todos los archivos están en la raíz del repositorio:
 ```
 index.html                 Aplicación (una sola página)
-assets/css/app.css         Estilos (modo claro y oscuro, adaptable a celular)
-assets/js/main.js          Enrutador
-assets/js/db.js            PostgreSQL en el navegador, roles y mensajes de error
-assets/js/public.js        Inicio, catálogo, reserva y «Mi reserva»
-assets/js/admin.js         Panel del personal
-assets/js/ui.js            Utilidades e ilustraciones de los vehículos
-assets/vendor/pglite/      PGlite 0.2.17 (licencia Apache-2.0)
-sql/                       Scripts SQL del proyecto (01 al 09)
+app.css                    Estilos (modo claro y oscuro, adaptable a celular)
+main.js                    Enrutador
+db.js                      PostgreSQL en el navegador, roles y mensajes de error
+public.js                  Inicio, catálogo, reserva y «Mi reserva»
+admin.js                   Panel del personal
+ui.js                      Utilidades e ilustraciones de los vehículos
+index.js, chunk-*.js,
+postgres.wasm, postgres.data, LICENSE   PGlite 0.2.17 (licencia Apache-2.0)
+01_…sql a 09_…sql          Scripts SQL del proyecto
 ```
 
 ## Publicar en GitHub Pages
@@ -72,3 +74,21 @@ python -m http.server 8000
 ```
 
 Luego abre http://localhost:8000
+
+## Créditos de las fotos
+Las fotos de los vehículos se cargan desde [Wikimedia Commons](https://commons.wikimedia.org) y pertenecen a sus
+autores, bajo licencias libres (Creative Commons). Si una foto no carga, se muestra una ilustración.
+
+| Vehículo | Archivo en Wikimedia Commons |
+|---|---|
+| Renault Sandero | [Renault Sandero R.S. 2020 - BugWarp 01.jpg](https://commons.wikimedia.org/wiki/File:Renault_Sandero_R.S._2020_-_BugWarp_01.jpg) |
+| Chevrolet Onix | [Chevrolet Onix (second generation, front view).jpg](https://commons.wikimedia.org/wiki/File:Chevrolet_Onix_(second_generation,_front_view).jpg) |
+| Toyota Corolla | [Toyota Corolla sedan E210 hydrid.jpg](https://commons.wikimedia.org/wiki/File:Toyota_Corolla_sedan_E210_hydrid.jpg) |
+| Mazda 3 | [Mazda3 SEDAN 20S L Package 2WD (5BA-BPFP) left.jpg](https://commons.wikimedia.org/wiki/File:Mazda3_SEDAN_20S_L_Package_2WD_(5BA-BPFP)_left.jpg) |
+| Kia Sportage | [Kia Sportage (NQ5) 1X7A0326 (edited).jpg](https://commons.wikimedia.org/wiki/File:Kia_Sportage_(NQ5)_1X7A0326_(edited).jpg) |
+| Renault Duster | [Renault Duster Mexico.jpg](https://commons.wikimedia.org/wiki/File:Renault_Duster_Mexico.jpg) |
+| Toyota Hilux | [2021 Toyota Hilux Revo Prerunner Double-Cab 2.4 Mid.jpg](https://commons.wikimedia.org/wiki/File:2021_Toyota_Hilux_Revo_Prerunner_Double-Cab_2.4_Mid.jpg) |
+| Ford Ranger | [2023 Ford Ranger XLS.jpg](https://commons.wikimedia.org/wiki/File:2023_Ford_Ranger_XLS.jpg) |
+| Kia Picanto | [Kia Picanto X-Line facelift 001.jpg](https://commons.wikimedia.org/wiki/File:Kia_Picanto_X-Line_facelift_001.jpg) |
+| Nissan Versa | [2023 Nissan Versa (N18) IMG 3105.jpg](https://commons.wikimedia.org/wiki/File:2023_Nissan_Versa_(N18)_IMG_3105.jpg) |
+| Hyundai Tucson | [Hyundai Tucson (NX4, SWB) IMG 9135.jpg](https://commons.wikimedia.org/wiki/File:Hyundai_Tucson_(NX4,_SWB)_IMG_9135.jpg) |

@@ -1,6 +1,6 @@
 // Sitio público de Sanca Rent: inicio, catálogo, reserva y consulta de reservas.
 import { as, query, PUBLIC_ROLE, errorMessage } from './db.js';
-import { $, $$, esc, money, num, fdate, parseLocal, toInput, toSql, nowWall, addDays, rentalDays, badge, code, carSvg, toast, field, options, confirmDialog } from './ui.js';
+import { $, $$, esc, money, num, fdate, parseLocal, toInput, toSql, nowWall, addDays, rentalDays, badge, code, carSvg, carPhoto, categoryPhoto, toast, field, options, confirmDialog } from './ui.js';
 
 const R = PUBLIC_ROLE;
 const go = h => { location.hash = h; };
@@ -65,7 +65,7 @@ export async function home(view) {
       <p class="sub">Tarifas por día. El depósito se reembolsa al devolver el vehículo en buen estado.</p>
       <div class="cat-grid">${cats.map(c => `
         <a class="cat-card" href="#/vehiculos?${new URLSearchParams({ ...d, cat: c.id_categoria })}">
-          ${carSvg(c.nombre_categoria, 'Plata', c.nombre_categoria)}
+          ${categoryPhoto(c.nombre_categoria)}
           <h3>${esc(c.nombre_categoria)}</h3>
           <p>${esc(c.descripcion || '')}</p>
           <div class="cat-meta"><b>${money(c.tarifa_diaria_base)}</b><span>/ día</span></div>
@@ -115,7 +115,7 @@ export async function catalog(view, params) {
       const ok = v.disponible === true;
       const reason = v.estado_vehiculo === 'En mantenimiento' ? 'En mantenimiento' : 'Ocupado en esas fechas';
       return `<article class="car-card${hasDates && !ok ? ' off' : ''}">
-        <div class="car-art">${carSvg(v.nombre_categoria, v.color, `${v.marca} ${v.modelo}`)}</div>
+        <div class="car-art">${carPhoto({ marca: v.marca, modelo: v.modelo, categoria: v.nombre_categoria, color: v.color })}</div>
         <div class="car-info">
           <div class="car-top"><span class="chip">${esc(v.nombre_categoria)}</span>${hasDates ? (ok ? badge('Disponible') : `<span class="badge t-muted">${reason}</span>`) : ''}</div>
           <h3>${esc(v.marca)} ${esc(v.modelo)}</h3>
@@ -169,7 +169,7 @@ export async function reservar(view, params, id) {
       <p class="fine">Al reservar aceptas que el vehículo se entrega con el depósito de la categoría. La reserva queda <b>pendiente</b> hasta que un asesor la confirme.</p>
     </form>
     <aside class="card summary">
-      <div class="car-art">${carSvg(v.nombre_categoria, v.color, `${v.marca} ${v.modelo}`)}</div>
+      <div class="car-art">${carPhoto({ marca: v.marca, modelo: v.modelo, categoria: v.nombre_categoria, color: v.color }, { w: 800, credit: true })}</div>
       <span class="chip">${esc(v.nombre_categoria)}</span>
       <h2>${esc(v.marca)} ${esc(v.modelo)} <small>${v.anio}</small></h2>
       <p class="specs">${esc(v.color)} · ${num(v.kilometraje)} km · Placa ${esc(v.placa)}</p>
@@ -239,7 +239,7 @@ export async function confirmacion(view, id) {
       <h1>¡Reserva registrada, ${esc(r.nombres.split(' ')[0])}!</h1>
       <p>Tu código de reserva es</p>
       <p class="big-code">${code('R', r.id_reserva)}</p>
-      <div class="car-art">${carSvg(r.nombre_categoria, r.color)}</div>
+      <div class="car-art">${carPhoto({ marca: r.marca, modelo: r.modelo, categoria: r.nombre_categoria, color: r.color }, { w: 800 })}</div>
       <dl class="lines">
         <div><dt>Vehículo</dt><dd>${esc(r.marca)} ${esc(r.modelo)} · ${esc(r.placa)}</dd></div>
         <div><dt>Recogida</dt><dd>${fdate(r.fecha_inicio)}</dd></div>
@@ -290,7 +290,7 @@ export async function misReservas(view, params) {
     <h2>Reservas</h2>
     <div class="list">${reservas.map(r => `
       <article class="item card">
-        <div class="item-art">${carSvg(r.nombre_categoria, r.color)}</div>
+        <div class="item-art">${carPhoto({ marca: r.marca, modelo: r.modelo, categoria: r.nombre_categoria, color: r.color }, { w: 320 })}</div>
         <div class="item-main">
           <div class="item-top"><b>${code('R', r.id_reserva)}</b>${badge(r.estado_reserva)}</div>
           <h3>${esc(r.marca)} ${esc(r.modelo)}</h3>
