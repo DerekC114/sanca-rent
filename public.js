@@ -1,6 +1,6 @@
 // Sitio público de Sanca Rent: inicio, catálogo, reserva y consulta de reservas.
 import { as, query, PUBLIC_ROLE, errorMessage } from './db.js';
-import { $, $$, esc, money, num, fdate, parseLocal, toInput, toSql, nowWall, addDays, rentalDays, badge, code, carSvg, carPhoto, categoryPhoto, toast, field, options, confirmDialog } from './ui.js';
+import { $, $$, esc, money, num, fdate, parseLocal, toInput, toSql, nowWall, addDays, rentalDays, badge, code, carSvg, carPhoto, categoryPhoto, clientRules, docHint, toast, field, options, confirmDialog } from './ui.js';
 
 const R = PUBLIC_ROLE;
 const go = h => { location.hash = h; };
@@ -149,17 +149,18 @@ export async function reservar(view, params, id) {
   <section class="section tight"><div class="wrap book-grid">
     <form class="card book-form" id="bookForm" novalidate>
       <h2>Tus datos</h2>
+      <p class="muted small form-intro">Si ya eres cliente, escribe tu documento y te reconocemos. Todos los campos son obligatorios, salvo los marcados como opcionales.</p>
       <div class="grid2">
         ${field('Tipo de documento', `<select name="tipo_documento">${options(['Cedula', 'Cedula extranjeria', 'Pasaporte'])}</select>`)}
-        ${field('Número de documento', `<input name="numero_documento" required maxlength="20" autocomplete="off">`, 'Si ya eres cliente, te reconocemos con tu documento.')}
+        ${field('Número de documento', `<input name="numero_documento" required maxlength="10" inputmode="numeric" autocomplete="off">`, docHint('Cedula'))}
       </div>
       <p class="known" id="known" hidden></p>
       <div id="newFields" class="grid2">
         ${field('Nombres', `<input name="nombres" required maxlength="60" autocomplete="given-name">`)}
         ${field('Apellidos', `<input name="apellidos" required maxlength="60" autocomplete="family-name">`)}
-        ${field('Teléfono', `<input name="telefono" required maxlength="20" inputmode="tel" autocomplete="tel">`)}
-        ${field('Correo electrónico', `<input type="email" name="correo_electronico" required maxlength="100" autocomplete="email">`)}
-        ${field('Número de licencia', `<input name="numero_licencia" required maxlength="30">`)}
+        ${field('Teléfono', `<input name="telefono" required maxlength="10" inputmode="numeric" autocomplete="tel" placeholder="3001234567">`)}
+        ${field('Correo electrónico', `<input type="email" name="correo_electronico" required maxlength="100" autocomplete="email" placeholder="nombre@correo.com">`)}
+        ${field('Número de licencia', `<input name="numero_licencia" required maxlength="30" autocomplete="off" style="text-transform:uppercase">`)}
         ${field('Vencimiento de la licencia', `<input type="date" name="fecha_vencimiento_licencia" required>`)}
         <div class="span2">${field('Dirección (opcional)', `<input name="direccion" maxlength="150" autocomplete="street-address">`)}</div>
       </div>
@@ -186,6 +187,7 @@ export async function reservar(view, params, id) {
 
   const form = $('#bookForm', view), known = $('#known', view), newFields = $('#newFields', view), errEl = $('.form-error', form);
   let cliente = null;
+  const checkAll = clientRules(form, { licenciaMin: err ? null : parseLocal(fin) });
   const setKnown = c => {
     cliente = c;
     known.hidden = !c;
@@ -195,14 +197,16 @@ export async function reservar(view, params, id) {
   };
   form.numero_documento.addEventListener('change', async () => {
     const doc = form.numero_documento.value.trim();
-    if (!doc) return setKnown(null);
+    if (!form.numero_documento.checkValidity()) return setKnown(null);
     const c = (await query(R, `SELECT id_cliente, nombres, estado_cliente FROM cliente WHERE numero_documento = $1`, [doc]))[0];
     setKnown(c || null);
   });
   form.addEventListener('submit', async e => {
     e.preventDefault();
     errEl.hidden = true;
-    if (!form.reportValidity()) return;
+    if (!checkAll() || !form.reportValidity()) {
+      errEl.textContent = 'Revisa los campos marcados en rojo.'; errEl.hidden = false; return;
+    }
     const f = Object.fromEntries(new FormData(form));
     const btn = $('button[type=submit]', form); btn.disabled = true;
     try {

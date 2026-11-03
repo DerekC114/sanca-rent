@@ -352,3 +352,10 @@ body.is-admin .footer{display:none}
 .cat-card .photo{margin:-18px -18px 14px;border-radius:var(--radius) var(--radius) 0 0}
 .item-art .photo{border-radius:10px}
 .done .car-art{max-width:420px;margin:0 auto 6px}
+
+/* Validación de formularios */
+.field .field-msg{color:var(--bad);font-size:.8rem}
+.field .field-msg:empty{display:none}
+.field.has-error input,.field.has-error select{border-color:var(--bad);background:color-mix(in srgb,var(--bad-bg) 45%,var(--surface))}
+.field.has-error input:focus{outline-color:var(--bad)}
+.form-intro{margin:-8px 0 16px}

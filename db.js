@@ -4,7 +4,7 @@ const PGLITE_URLS = [
   new URL('./index.js', import.meta.url).href,
   'https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.2.17/dist/index.js',
 ];
-const DB_NAME = 'idb://sanca-rent-v1';
+const DB_NAME = 'idb://sanca-rent-v2';
 const SEED = [
   '01_creacion_tablas.sql',
   '02_inserciones.sql',
@@ -12,6 +12,7 @@ const SEED = [
   '05_consultas_evidencias.sql',
   '06_afinamiento_base_datos.sql',
   '09_reglas_automatizadas.sql',
+  '10_validaciones_cliente.sql',
 ];
 
 export const ROLES = {
@@ -117,6 +118,13 @@ export async function resetData() {
 
 /** Traduce errores de PostgreSQL a mensajes claros. */
 const CONSTRAINTS = {
+  ck_cliente_numero_documento: 'El número de documento no es válido: la cédula solo admite números (6 a 10 dígitos).',
+  ck_cliente_nombres: 'Los nombres solo pueden tener letras.',
+  ck_cliente_apellidos: 'Los apellidos solo pueden tener letras.',
+  ck_cliente_telefono: 'El teléfono debe tener 10 dígitos (celular que empiece por 3 o fijo por 60).',
+  ck_cliente_correo: 'El correo electrónico no es válido.',
+  ck_cliente_licencia: 'El número de licencia solo admite letras, números y guiones (5 a 30).',
+  ck_cliente_direccion: 'La dirección es muy corta.',
   uq_cliente_documento: 'Ya existe un cliente con ese número de documento.',
   uq_cliente_correo: 'Ya existe un cliente con ese correo electrónico.',
   uq_cliente_licencia: 'Ya existe un cliente con ese número de licencia.',

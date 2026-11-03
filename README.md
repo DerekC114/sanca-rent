@@ -41,8 +41,17 @@ Script nuevo que lleva a la base de datos las reglas del documento que antes no 
 - **Regla 20:** al terminar el alquiler o el mantenimiento vuelve a «Disponible» y se actualiza el kilometraje.
 - Además: los clientes inactivos o bloqueados, o con la licencia vencida, no pueden reservar.
 
+## Validaciones de los datos del cliente (`10_validaciones_cliente.sql`)
+El formulario impide escribir caracteres no permitidos y la base de datos lo refuerza con restricciones `CHECK`:
+
+- **Cédula:** solo números, de 6 a 10 dígitos. **Cédula de extranjería y pasaporte:** letras y números, de 6 a 12.
+- **Nombres y apellidos:** solo letras (con tildes y ñ), espacios, guion o apóstrofo.
+- **Teléfono:** 10 dígitos; celular que empiece por 3 o fijo que empiece por 60.
+- **Correo:** formato `nombre@dominio.ext`.
+- **Licencia:** letras, números y guion (5 a 30); debe estar vigente durante toda la reserva.
+
 ## Datos
-La base se crea en el navegador con los scripts `01`, `02`, `04`, `05`, `06` y `09`, y se guarda en
+La base se crea en el navegador con los scripts `01`, `02`, `04`, `05`, `06`, `09` y `10`, y se guarda en
 IndexedDB: lo que registres se conserva al recargar, pero **solo en ese navegador**. El administrador
 puede restablecer los datos originales en «Datos».
 
@@ -58,7 +67,7 @@ admin.js                   Panel del personal
 ui.js                      Utilidades e ilustraciones de los vehículos
 index.js, chunk-*.js,
 postgres.wasm, postgres.data, LICENSE   PGlite 0.2.17 (licencia Apache-2.0)
-01_…sql a 09_…sql          Scripts SQL del proyecto
+01_…sql a 10_…sql          Scripts SQL del proyecto
 ```
 
 ## Publicar en GitHub Pages

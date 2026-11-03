@@ -1,7 +1,7 @@
 // Panel interno de Sanca Rent. Cada operación se ejecuta con SET LOCAL ROLE del usuario elegido,
 // así que PostgreSQL aplica los permisos definidos en 05_consultas_evidencias.sql.
 import { ROLES, as, query, execAs, resetData, errorMessage } from './db.js';
-import { $, $$, esc, money, num, fdate, parseLocal, toInput, toSql, nowWall, addDays, rentalDays, badge, code, toast, modal, confirmDialog, field, options, table } from './ui.js';
+import { $, $$, esc, money, num, fdate, parseLocal, toInput, toSql, nowWall, addDays, rentalDays, badge, code, toast, modal, confirmDialog, field, options, table, clientRules, docHint } from './ui.js';
 
 const KEY = 'sanca-usuario';
 export const currentUser = () => { try { return sessionStorage.getItem(KEY); } catch { return null; } };
@@ -277,7 +277,7 @@ PANES.pagos = async ctx => {
 
 const clienteForm = (c = {}) => `<div class="grid2">
   ${field('Tipo de documento', `<select name="tipo_documento" ${c.id_cliente ? 'disabled' : ''}>${options(['Cedula', 'Cedula extranjeria', 'Pasaporte'], c.tipo_documento)}</select>`)}
-  ${field('Número de documento', `<input name="numero_documento" value="${esc(c.numero_documento || '')}" maxlength="20" required ${c.id_cliente ? 'readonly' : ''}>`)}
+  ${field('Número de documento', `<input name="numero_documento" value="${esc(c.numero_documento || '')}" maxlength="12" required ${c.id_cliente ? 'readonly' : ''}>`, c.id_cliente ? '' : docHint('Cedula'))}
   ${field('Nombres', `<input name="nombres" value="${esc(c.nombres || '')}" maxlength="60" required>`)}
   ${field('Apellidos', `<input name="apellidos" value="${esc(c.apellidos || '')}" maxlength="60" required>`)}
   ${field('Teléfono', `<input name="telefono" value="${esc(c.telefono || '')}" maxlength="20" required>`)}
@@ -308,14 +308,14 @@ PANES.clientes = async ctx => {
   $('#cliSearch', pane).addEventListener('submit', e => { e.preventDefault(); go(`#/admin/clientes?q=${encodeURIComponent(e.target.q.value.trim())}`); });
   const nb = $('#newCli', pane);
   if (nb) nb.addEventListener('click', () => modal({
-    title: 'Nuevo cliente', wide: true, body: clienteForm(),
+    title: 'Nuevo cliente', wide: true, body: clienteForm(), onOpen: f => clientRules(f),
     onSubmit: v => run(ctx, ({ q }) => q(`INSERT INTO cliente (tipo_documento,numero_documento,nombres,apellidos,telefono,correo_electronico,numero_licencia,fecha_vencimiento_licencia,direccion,estado_cliente)
       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,NULLIF($9,''),$10)`, [v.tipo_documento, v.numero_documento, v.nombres, v.apellidos, v.telefono, v.correo_electronico.toLowerCase(), v.numero_licencia, v.fecha_vencimiento_licencia, v.direccion, v.estado_cliente]), 'Cliente registrado.'),
   }));
   wire(pane, '[data-edit]', d => {
     const c = rows.find(x => x.id_cliente === +d.edit);
     modal({
-      title: `Editar cliente · ${c.nombres}`, wide: true, body: clienteForm(c),
+      title: `Editar cliente · ${c.nombres}`, wide: true, body: clienteForm(c), onOpen: f => clientRules(f, { licenciaMin: new Date(0) }),
       onSubmit: v => run(ctx, ({ q }) => q(`UPDATE cliente SET nombres=$2, apellidos=$3, telefono=$4, correo_electronico=$5, numero_licencia=$6, fecha_vencimiento_licencia=$7, direccion=NULLIF($8,''), estado_cliente=$9 WHERE id_cliente=$1`,
         [c.id_cliente, v.nombres, v.apellidos, v.telefono, v.correo_electronico.toLowerCase(), v.numero_licencia, v.fecha_vencimiento_licencia, v.direccion, v.estado_cliente]), 'Cliente actualizado.'),
     });
@@ -476,7 +476,7 @@ PANES.sql = async ({ u, pane }) => {
 PANES.datos = async ({ pane }) => {
   pane.innerHTML = head('Datos de demostración') + `<div class="card narrow">
     <p>La base de datos funciona dentro de tu navegador y se guarda en él: los clientes, reservas y pagos que registres se conservan al recargar la página, pero no se comparten con otras personas ni con otros navegadores.</p>
-    <p>Restablecer vuelve a cargar los scripts del proyecto (01, 02, 04, 05, 06 y 09) y borra todo lo que hayas registrado.</p>
+    <p>Restablecer vuelve a cargar los scripts del proyecto (01, 02, 04, 05, 06, 09 y 10) y borra todo lo que hayas registrado.</p>
     <button class="btn btn-danger" id="reset">Restablecer datos originales</button></div>`;
   $('#reset', pane).addEventListener('click', async () => {
     if (!await confirmDialog('Restablecer datos', 'Se borrarán todas las reservas, clientes y pagos que hayas creado. ¿Continuar?', 'Restablecer')) return;

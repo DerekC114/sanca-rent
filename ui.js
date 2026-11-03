@@ -113,6 +113,134 @@ export function categoryPhoto(categoria) {
   return carPhoto({ marca, modelo: rest.join(' '), categoria, color: 'Plata' }, { w: 480 });
 }
 
+
+/* ---------- Validación de datos del cliente ---------- */
+const LETRAS = 'A-Za-zÁÉÍÓÚÜÑáéíóúüñ';
+const RE_NOMBRE = new RegExp(`^[${LETRAS}]([${LETRAS}' -]*[${LETRAS}])?$`);
+const DOC_HINT = {
+  Cedula: 'Solo números, de 6 a 10 dígitos.',
+  'Cedula extranjeria': 'Letras y números, de 6 a 12 caracteres.',
+  Pasaporte: 'Letras y números, de 6 a 12 caracteres.',
+};
+const isoDate = d => `${d.getUTCFullYear()}-${p2(d.getUTCMonth() + 1)}-${p2(d.getUTCDate())}`;
+
+/**
+ * Aplica restricciones a un formulario con campos de cliente:
+ * limpia lo que se escribe, valida cada campo y muestra el mensaje bajo él.
+ * opts.licenciaMin: fecha (Date de pared) desde la que la licencia debe estar vigente.
+ */
+export function clientRules(form, { licenciaMin } = {}) {
+  const el = n => form.elements[n];
+  const tipo = () => (el('tipo_documento') ? el('tipo_documento').value : 'Cedula');
+  const minLic = licenciaMin || nowWall();
+  const RULES = {
+    numero_documento: {
+      clean: v => tipo() === 'Cedula' ? v.replace(/\D/g, '').slice(0, 10) : v.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12),
+      check: v => !v ? 'Escribe el número de documento.'
+        : tipo() === 'Cedula' ? (/^\d{6,10}$/.test(v) ? '' : 'La cédula debe tener solo números, entre 6 y 10 dígitos.')
+        : (/^[A-Z0-9]{6,12}$/.test(v) ? '' : 'Debe tener entre 6 y 12 letras o números.'),
+    },
+    nombres: {
+      clean: v => v.replace(new RegExp(`[^${LETRAS}' -]`, 'g'), '').replace(/\s{2,}/g, ' ').slice(0, 60),
+      check: v => !v.trim() ? 'Escribe tus nombres.' : v.trim().length < 2 ? 'Debe tener al menos 2 letras.' : !RE_NOMBRE.test(v.trim()) ? 'Usa solo letras (sin números ni símbolos).' : '',
+    },
+    apellidos: {
+      clean: v => v.replace(new RegExp(`[^${LETRAS}' -]`, 'g'), '').replace(/\s{2,}/g, ' ').slice(0, 60),
+      check: v => !v.trim() ? 'Escribe tus apellidos.' : v.trim().length < 2 ? 'Debe tener al menos 2 letras.' : !RE_NOMBRE.test(v.trim()) ? 'Usa solo letras (sin números ni símbolos).' : '',
+    },
+    telefono: {
+      clean: v => v.replace(/\D/g, '').slice(0, 10),
+      check: v => !v ? 'Escribe un teléfono.' : /^(3\d{9}|60\d{8})$/.test(v) ? '' : 'Debe tener 10 dígitos: celular que empiece por 3 o fijo que empiece por 60.',
+    },
+    correo_electronico: {
+      clean: v => v.replace(/\s/g, '').slice(0, 100),
+      check: v => !v ? 'Escribe tu correo.' : /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(v) ? '' : 'Escribe un correo válido, por ejemplo nombre@correo.com.',
+    },
+    numero_licencia: {
+      clean: v => v.toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 30),
+      check: v => !v ? 'Escribe el número de la licencia.' : /^[A-Z0-9-]{5,30}$/.test(v) ? '' : 'Entre 5 y 30 letras, números o guiones.',
+    },
+    fecha_vencimiento_licencia: {
+      check: v => {
+        if (!v) return 'Indica la fecha de vencimiento de la licencia.';
+        const d = parseLocal(v);
+        if (isNaN(d)) return 'Fecha no válida.';
+        if (d < parseLocal(isoDate(minLic))) return licenciaMin ? 'La licencia vence antes de terminar la reserva; debe estar vigente durante todo el alquiler.' : 'La licencia está vencida.';
+        if (d > addDays(nowWall(), 365 * 15)) return 'La fecha es demasiado lejana.';
+        return '';
+      },
+    },
+    direccion: {
+      clean: v => v.replace(/[^A-Za-z0-9ÁÉÍÓÚÜÑáéíóúüñ#°.,\-/ ]/g, '').replace(/\s{2,}/g, ' ').slice(0, 150),
+      check: v => v.trim() && v.trim().length < 3 ? 'La dirección es muy corta.' : '',
+    },
+  };
+  const ATTRS = {
+    numero_documento: () => tipo() === 'Cedula' ? { inputmode: 'numeric', maxlength: 10 } : { inputmode: 'text', maxlength: 12 },
+    telefono: () => ({ inputmode: 'numeric', maxlength: 10 }),
+    numero_licencia: () => ({ maxlength: 30 }),
+  };
+  const msgEl = input => {
+    let m = input.closest('.field').querySelector('.field-msg');
+    if (!m) { m = document.createElement('small'); m.className = 'field-msg'; m.setAttribute('aria-live', 'polite'); input.closest('.field').appendChild(m); }
+    return m;
+  };
+  const validate = (name, show) => {
+    const input = el(name), r = RULES[name];
+    if (!input || input.disabled || input.readOnly) return true;
+    const msg = r.check(input.value);
+    input.setCustomValidity(msg);
+    input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+    if (show || input.dataset.touched) { msgEl(input).textContent = msg; input.closest('.field').classList.toggle('has-error', !!msg); }
+    return !msg;
+  };
+  const applyAttrs = () => Object.entries(ATTRS).forEach(([n, f]) => { const i = el(n); if (i) Object.entries(f()).forEach(([k, v]) => i.setAttribute(k, v)); });
+  applyAttrs();
+  let pressing = false;
+  form.addEventListener('pointerdown', e => { if (e.target.closest('button')) { pressing = true; setTimeout(() => { pressing = false; }, 600); } });
+  const lic = el('fecha_vencimiento_licencia');
+  if (lic) { lic.min = isoDate(minLic); lic.max = isoDate(addDays(nowWall(), 365 * 15)); }
+  Object.keys(RULES).forEach(name => {
+    const input = el(name);
+    if (!input) return;
+    const r = RULES[name];
+    input.addEventListener('input', () => {
+      if (r.clean) {
+        const pos = input.selectionStart, before = input.value, after = r.clean(before);
+        if (after !== before) { input.value = after; try { input.setSelectionRange(pos - (before.length - after.length), pos - (before.length - after.length)); } catch { /* fechas */ } }
+      }
+      validate(name);
+    });
+    input.addEventListener('blur', e => {
+      if (input.value && ['nombres', 'apellidos', 'direccion'].includes(name)) input.value = input.value.trim();
+      input.dataset.touched = '1';
+      // Si el foco se va porque se está pulsando un botón, no se muestra el mensaje ahora:
+      // haría saltar el botón y el clic se perdería. El envío valida y muestra todo.
+      const t = e.relatedTarget;
+      if (pressing || (t && t.tagName === 'BUTTON')) return;
+      validate(name, true);
+    });
+    validate(name);
+  });
+  const tipoSel = el('tipo_documento');
+  if (tipoSel) tipoSel.addEventListener('change', () => {
+    const doc = el('numero_documento');
+    applyAttrs();
+    doc.value = RULES.numero_documento.clean(doc.value);
+    const hint = doc.closest('.field').querySelector('small:not(.field-msg)');
+    if (hint) hint.textContent = DOC_HINT[tipoSel.value];
+    validate('numero_documento', !!doc.value);
+  });
+  /** Valida todo y muestra los mensajes; devuelve true si el formulario es válido. */
+  return () => {
+    let ok = true, first = null;
+    Object.keys(RULES).forEach(n => { const i = el(n); if (i) i.dataset.touched = '1'; if (!validate(n, true)) { ok = false; first = first || i; } });
+    if (first) first.focus();
+    return ok;
+  };
+}
+export const docHint = t => DOC_HINT[t] || DOC_HINT.Cedula;
+
 /* ---------- Avisos ---------- */
 export function toast(msg, tone = 'ok') {
   let box = $('#toasts');
@@ -129,7 +257,7 @@ export function toast(msg, tone = 'ok') {
  * Abre un modal. `body` es HTML con campos; `onSubmit(data, form)` puede lanzar un error para mostrarlo.
  * Devuelve una promesa que se resuelve cuando el modal se cierra.
  */
-export function modal({ title, body, submit = 'Guardar', onSubmit, wide = false }) {
+export function modal({ title, body, submit = 'Guardar', onSubmit, onOpen, wide = false }) {
   return new Promise(resolve => {
     const dlg = document.createElement('dialog');
     dlg.className = 'modal' + (wide ? ' wide' : '');
@@ -143,9 +271,11 @@ export function modal({ title, body, submit = 'Guardar', onSubmit, wide = false 
     const close = v => { dlg.close(); dlg.remove(); resolve(v); };
     $$('[data-close]', dlg).forEach(b => b.addEventListener('click', () => close(null)));
     dlg.addEventListener('cancel', e => { e.preventDefault(); close(null); });
+    const extraCheck = onOpen ? onOpen(form) : null;
     form.addEventListener('submit', async e => {
       e.preventDefault();
       if (!onSubmit) return close(null);
+      if (typeof extraCheck === 'function' && !extraCheck()) return;
       if (!form.reportValidity()) return;
       const btn = $('button[type=submit]', form);
       btn.disabled = true; err.hidden = true;
