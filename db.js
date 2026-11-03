@@ -1,17 +1,17 @@
 // Base de datos de Sanca Rent: PostgreSQL (PGlite) ejecutándose en el navegador.
 // Los datos se guardan en IndexedDB, así que persisten entre visitas en el mismo navegador.
 const PGLITE_URLS = [
-  new URL('../vendor/pglite/index.js', import.meta.url).href,
+  new URL('./index.js', import.meta.url).href,
   'https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.2.17/dist/index.js',
 ];
 const DB_NAME = 'idb://sanca-rent-v1';
 const SEED = [
-  'sql/01_creacion_tablas.sql',
-  'sql/02_inserciones.sql',
-  'sql/04_ajustes_datos_fase2.sql',
-  'sql/05_consultas_evidencias.sql',
-  'sql/06_afinamiento_base_datos.sql',
-  'sql/09_reglas_automatizadas.sql',
+  '01_creacion_tablas.sql',
+  '02_inserciones.sql',
+  '04_ajustes_datos_fase2.sql',
+  '05_consultas_evidencias.sql',
+  '06_afinamiento_base_datos.sql',
+  '09_reglas_automatizadas.sql',
 ];
 
 export const ROLES = {
@@ -40,7 +40,7 @@ async function seed(fresh) {
     await db.exec('DROP SCHEMA IF EXISTS public CASCADE; CREATE SCHEMA public;');
   }
   for (const f of SEED) {
-    progress(`Ejecutando ${f.split('/')[1]}…`);
+    progress(`Ejecutando ${f}…`);
     const r = await fetch(f);
     if (!r.ok) throw new Error(`No se pudo leer ${f} (${r.status})`);
     await db.exec(await r.text());
