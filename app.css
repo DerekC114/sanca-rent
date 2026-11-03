@@ -359,3 +359,5 @@ body.is-admin .footer{display:none}
 .field.has-error input,.field.has-error select{border-color:var(--bad);background:color-mix(in srgb,var(--bad-bg) 45%,var(--surface))}
 .field.has-error input:focus{outline-color:var(--bad)}
 .form-intro{margin:-8px 0 16px}
+.search.doc{grid-template-columns:minmax(0,230px) minmax(0,340px) auto;justify-content:start}
+@media (max-width:760px){.search.doc{grid-template-columns:1fr}}

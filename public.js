@@ -1,6 +1,6 @@
 // Sitio público de Sanca Rent: inicio, catálogo, reserva y consulta de reservas.
-import { as, query, PUBLIC_ROLE, errorMessage } from './db.js';
-import { $, $$, esc, money, num, fdate, parseLocal, toInput, toSql, nowWall, addDays, rentalDays, badge, code, carSvg, carPhoto, categoryPhoto, clientRules, docHint, toast, field, options, confirmDialog } from './ui.js';
+import { as, query, PUBLIC_ROLE, errorMessage } from './db.js?v=6';
+import { $, $$, esc, money, num, fdate, parseLocal, toInput, toSql, nowWall, addDays, rentalDays, badge, code, carSvg, carPhoto, categoryPhoto, clientRules, docHint, toast, field, options, confirmDialog } from './ui.js?v=6';
 
 const R = PUBLIC_ROLE;
 const go = h => { location.hash = h; };
@@ -232,7 +232,7 @@ export async function reservar(view, params, id) {
 
 /* ---------- Confirmación ---------- */
 export async function confirmacion(view, id) {
-  const r = (await query(R, `SELECT r.*, c.nombres, c.correo_electronico, c.numero_documento, v.marca, v.modelo, v.color, v.placa,
+  const r = (await query(R, `SELECT r.*, c.nombres, c.correo_electronico, c.tipo_documento, c.numero_documento, v.marca, v.modelo, v.color, v.placa,
       k.nombre_categoria, k.deposito_requerido
     FROM reserva r JOIN cliente c USING (id_cliente) JOIN vehiculo v USING (id_vehiculo) JOIN categoria_vehiculo k USING (id_categoria)
     WHERE r.id_reserva = $1`, [Number(id)]))[0];
@@ -253,7 +253,7 @@ export async function confirmacion(view, id) {
         <div class="muted"><dt>Depósito al recoger</dt><dd>${money(r.deposito_requerido)}</dd></div>
       </dl>
       <div class="row-actions center">
-        <a class="btn btn-primary" href="#/mi-reserva?doc=${encodeURIComponent(r.numero_documento)}">Ver mis reservas</a>
+        <a class="btn btn-primary" href="#/mi-reserva?${new URLSearchParams({ tipo: r.tipo_documento, doc: r.numero_documento })}">Ver mis reservas</a>
         <a class="btn btn-ghost" href="#/">Volver al inicio</a>
       </div>
     </div>
@@ -263,20 +263,34 @@ export async function confirmacion(view, id) {
 /* ---------- Mi reserva ---------- */
 export async function misReservas(view, params) {
   const doc = (params.get('doc') || '').trim();
+  const tipo = ['Cedula', 'Cedula extranjeria', 'Pasaporte'].includes(params.get('tipo')) ? params.get('tipo') : 'Cedula';
   view.innerHTML = `<section class="page-head"><div class="wrap">
     <h1>Mi reserva</h1>
-    <form class="search compact one" id="docForm">
-      ${field('Número de documento', `<input name="doc" value="${esc(doc)}" required autocomplete="off">`)}
+    <form class="search compact doc" id="docForm" novalidate>
+      ${field('Tipo de documento', `<select name="tipo_documento">${options(['Cedula', 'Cedula extranjeria', 'Pasaporte'], tipo)}</select>`)}
+      ${field('Número de documento', `<input name="numero_documento" value="${esc(doc)}" required autocomplete="off">`, docHint(tipo))}
       <button class="btn btn-primary" type="submit">Consultar</button>
     </form>
     <p class="result-note">Ejemplos de la base de datos: <button class="link" data-doc="1020304050">1020304050</button> · <button class="link" data-doc="1050607080">1050607080</button></p>
   </div></section><section class="section tight"><div class="wrap" id="mine"></div></section>`;
-  $('#docForm', view).addEventListener('submit', e => { e.preventDefault(); go(`#/mi-reserva?doc=${encodeURIComponent(e.target.doc.value.trim())}`); });
-  $$('[data-doc]', view).forEach(b => b.addEventListener('click', () => go(`#/mi-reserva?doc=${b.dataset.doc}`)));
+  const docForm = $('#docForm', view);
+  const checkDoc = clientRules(docForm);
+  docForm.addEventListener('submit', e => {
+    e.preventDefault();
+    if (!checkDoc()) return;
+    go(`#/mi-reserva?${new URLSearchParams({ tipo: docForm.tipo_documento.value, doc: docForm.numero_documento.value })}`);
+  });
+  $$('[data-doc]', view).forEach(b => b.addEventListener('click', () => go(`#/mi-reserva?tipo=Cedula&doc=${b.dataset.doc}`)));
   if (!doc) return;
+  // Aunque se escriba en la dirección, un documento con formato inválido no se consulta.
+  const valido = tipo === 'Cedula' ? /^\d{6,10}$/.test(doc) : /^[A-Z0-9]{6,12}$/.test(doc);
+  if (!valido) {
+    $('#mine', view).innerHTML = `<div class="notice bad">El número de documento no es válido. ${esc(docHint(tipo))}</div>`;
+    return;
+  }
   const out = $('#mine', view);
   const data = await as(R, async ({ q, one }) => {
-    const c = await one(`SELECT * FROM cliente WHERE numero_documento = $1`, [doc]);
+    const c = await one(`SELECT * FROM cliente WHERE numero_documento = $1 AND tipo_documento = $2`, [doc, tipo]);
     if (!c) return null;
     const reservas = await q(`SELECT r.*, v.marca, v.modelo, v.color, k.nombre_categoria FROM reserva r JOIN vehiculo v USING (id_vehiculo)
       JOIN categoria_vehiculo k USING (id_categoria) WHERE r.id_cliente = $1 ORDER BY r.fecha_inicio DESC`, [c.id_cliente]);
