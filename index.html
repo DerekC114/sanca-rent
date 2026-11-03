@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sanca Rent</title>
+<meta name="description" content="Sanca Rent: alquiler de vehículos. Consulta disponibilidad, reserva en línea y gestiona la operación con una base de datos PostgreSQL.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23e8a317'/%3E%3Cpath d='M7 19.5l2.2-5.6A3 3 0 0 1 12 12h8a3 3 0 0 1 2.8 1.9l2.2 5.6V23a1 1 0 0 1-1 1h-1.5a1 1 0 0 1-1-1v-1h-11v1a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1z' fill='%231b1300'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+<a class="skip" href="#view">Saltar al contenido</a>
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <a class="brand" href="#/" aria-label="Sanca Rent, inicio">
+      <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><rect width="32" height="32" rx="8" fill="var(--accent)"/><path d="M7 19.5l2.2-5.6A3 3 0 0 1 12 12h8a3 3 0 0 1 2.8 1.9l2.2 5.6V23a1 1 0 0 1-1 1h-1.5a1 1 0 0 1-1-1v-1h-11v1a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1z" fill="var(--on-accent)"/><circle cx="11" cy="19" r="1.4" fill="var(--accent)"/><circle cx="21" cy="19" r="1.4" fill="var(--accent)"/></svg>
+      <span>Sanca Rent</span>
+    </a>
+    <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="nav">Menú</button>
+    <nav class="nav" id="nav">
+      <a href="#/" data-nav="inicio">Inicio</a>
+      <a href="#/vehiculos" data-nav="vehiculos">Vehículos</a>
+      <a href="#/mi-reserva" data-nav="mi-reserva">Mi reserva</a>
+      <a href="#/admin" data-nav="admin" class="staff" id="staffLink">Personal</a>
+    </nav>
+  </div>
+</header>
+
+<main id="view" tabindex="-1"></main>
+
+<div class="loader" id="loader" role="status" aria-live="polite">
+  <div class="loader-box">
+    <div class="spinner" aria-hidden="true"></div>
+    <b>Sanca Rent</b>
+    <span id="loaderTxt">Cargando…</span>
+    <small>La primera visita descarga la base de datos (unos segundos).</small>
+  </div>
+</div>
+<div id="toasts" class="toasts"></div>
+
+<footer class="footer">
+  <div class="wrap footer-in">
+    <div><b>Sanca Rent</b><span>Alquiler de vehículos</span></div>
+    <p>Proyecto académico · Administración de bases de datos con SQL · Politécnico Grancolombiano, 2026. Derek Santiago Cristiano Herrera y Camilo Andrés Fuentes Alba. Funciona con PostgreSQL en el navegador; los datos son sintéticos y se guardan solo en este navegador.</p>
+  </div>
+</footer>
+
+<script type="module" src="assets/js/main.js"></script>
+</body>
+</html>
