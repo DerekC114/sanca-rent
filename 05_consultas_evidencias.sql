@@ -289,7 +289,7 @@ BEGIN
         WHERE rolname = 'usuario_admin_bd'
     ) THEN
         CREATE ROLE usuario_admin_bd
-        LOGIN PASSWORD 'Cambiar_Admin_2026!';
+        LOGIN PASSWORD '********';
     END IF;
 
     IF NOT EXISTS (
@@ -297,7 +297,7 @@ BEGIN
         WHERE rolname = 'usuario_operador'
     ) THEN
         CREATE ROLE usuario_operador
-        LOGIN PASSWORD 'Cambiar_Operador_2026!';
+        LOGIN PASSWORD '********';
     END IF;
 
     IF NOT EXISTS (
@@ -305,7 +305,7 @@ BEGIN
         WHERE rolname = 'usuario_contabilidad'
     ) THEN
         CREATE ROLE usuario_contabilidad
-        LOGIN PASSWORD 'Cambiar_Contabilidad_2026!';
+        LOGIN PASSWORD '********';
     END IF;
 
     IF NOT EXISTS (
@@ -313,7 +313,7 @@ BEGIN
         WHERE rolname = 'usuario_mantenimiento'
     ) THEN
         CREATE ROLE usuario_mantenimiento
-        LOGIN PASSWORD 'Cambiar_Mantenimiento_2026!';
+        LOGIN PASSWORD '********';
     END IF;
 
     IF NOT EXISTS (
@@ -321,7 +321,7 @@ BEGIN
         WHERE rolname = 'usuario_consulta'
     ) THEN
         CREATE ROLE usuario_consulta
-        LOGIN PASSWORD 'Cambiar_Consulta_2026!';
+        LOGIN PASSWORD '********';
     END IF;
 END;
 $$;

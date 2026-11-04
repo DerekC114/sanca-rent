@@ -4,7 +4,14 @@ const PGLITE_URLS = [
   new URL('./index.js', import.meta.url).href,
   'https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.2.17/dist/index.js',
 ];
-const DB_NAME = 'idb://sanca-rent-v2';
+const DB_NAME = 'idb://sanca-rent-v3';
+// TIMESTAMP y DATE no tienen zona horaria: se leen como "hora de pared" (Date en UTC con la misma hora),
+// que es lo que esperan fdate/parseLocal en ui.js. Sin esto, un navegador en Colombia sumaba 5 horas.
+const wall = s => {
+  const m = String(s).match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?/);
+  return m ? new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0), +(m[6] || 0))) : new Date(s);
+};
+const PG_OPTIONS = { parsers: { 1114: wall, 1082: wall } };
 const SEED = [
   '01_creacion_tablas.sql',
   '02_inserciones.sql',
@@ -13,6 +20,7 @@ const SEED = [
   '06_afinamiento_base_datos.sql',
   '09_reglas_automatizadas.sql',
   '10_validaciones_cliente.sql',
+  '11_ajustes_presentacion.sql',
 ];
 
 export const ROLES = {
@@ -53,8 +61,8 @@ export function init() {
   ready = (async () => {
     progress('Cargando PostgreSQL…');
     const PGlite = await loadPGlite();
-    try { db = new PGlite(DB_NAME); await db.waitReady; }
-    catch (e) { console.warn('IndexedDB no disponible; se usa memoria', e); db = new PGlite(); await db.waitReady; }
+    try { db = new PGlite(DB_NAME, PG_OPTIONS); await db.waitReady; }
+    catch (e) { console.warn('IndexedDB no disponible; se usa memoria', e); db = new PGlite(PG_OPTIONS); await db.waitReady; }
     try { await db.exec(`SET TIME ZONE 'America/Bogota'`); } catch { /* zona horaria no disponible */ }
     const r = await db.query(`SELECT to_regclass('public.cliente') IS NOT NULL AS t,
       to_regprocedure('public.fn_vehiculo_disponible(integer,timestamp without time zone,timestamp without time zone,integer)') IS NOT NULL AS f`);

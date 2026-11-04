@@ -1,7 +1,7 @@
 // Panel interno de Sanca Rent. Cada operación se ejecuta con SET LOCAL ROLE del usuario elegido,
 // así que PostgreSQL aplica los permisos definidos en 05_consultas_evidencias.sql.
-import { ROLES, as, query, execAs, resetData, errorMessage } from './db.js?v=6';
-import { $, $$, esc, money, num, fdate, parseLocal, toInput, toSql, nowWall, addDays, rentalDays, badge, code, toast, modal, confirmDialog, field, options, table, clientRules, docHint } from './ui.js?v=6';
+import { ROLES, as, query, execAs, resetData, errorMessage } from './db.js?v=7';
+import { $, $$, esc, money, num, fdate, parseLocal, toInput, toSql, nowWall, addDays, rentalDays, badge, code, toast, modal, confirmDialog, field, options, table, clientRules, docHint } from './ui.js?v=7';
 
 const KEY = 'sanca-usuario';
 export const currentUser = () => { try { return sessionStorage.getItem(KEY); } catch { return null; } };
@@ -14,7 +14,7 @@ const TABS = {
   alquileres: { label: 'Alquileres', see: [A, O, C, Q], write: [A, O] },
   pagos: { label: 'Pagos', see: [A, O, C], write: [A, C] },
   clientes: { label: 'Clientes', see: [A, O, C], write: [A, O] },
-  flota: { label: 'Flota', see: [A, O, C, M, Q], write: [A, M] },
+  flota: { label: 'Flota', see: [A, O, M, Q], write: [A, M] }, // Contabilidad no tiene SELECT sobre categoria_vehiculo
   mantenimiento: { label: 'Mantenimiento', see: [A, O, M, Q], write: [A, M] },
   reportes: { label: 'Reportes', see: [A] },
   sql: { label: 'Consola SQL', see: [A, O, C, M, Q] },
