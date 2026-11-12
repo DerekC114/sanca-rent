@@ -1,7 +1,7 @@
 // Panel interno de Sanca Rent. Cada operación se ejecuta con SET LOCAL ROLE del usuario elegido,
 // así que PostgreSQL aplica los permisos definidos en 05_consultas_evidencias.sql.
-import { ROLES, as, query, execAs, resetData, errorMessage } from './db.js?v=8';
-import { $, $$, esc, money, num, fdate, parseLocal, toInput, toSql, nowWall, addDays, rentalDays, badge, code, toast, modal, confirmDialog, field, options, table, clientRules, docHint } from './ui.js?v=8';
+import { ROLES, as, query, execAs, resetData, errorMessage } from './db.js?v=9';
+import { $, $$, esc, money, num, fdate, parseLocal, toInput, toSql, nowWall, addDays, rentalDays, badge, code, toast, modal, confirmDialog, field, options, table, clientRules, docHint } from './ui.js?v=9';
 
 const KEY = 'sanca-usuario';
 export const currentUser = () => { try { return sessionStorage.getItem(KEY); } catch { return null; } };
@@ -20,6 +20,23 @@ const TABS = {
   sql: { label: 'Consola SQL', see: [A, O, C, M, Q] },
   datos: { label: 'Datos', see: [A] },
 };
+// El administrador pide contraseña. Se guarda solo su hash SHA-256, no la clave en texto plano.
+const ADMIN_HASH = '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5';
+async function sha256(text) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+function askAdminPassword() {
+  return modal({
+    title: 'Contraseña del administrador',
+    body: field('Contraseña', '<input type="password" name="clave" required autocomplete="current-password">'),
+    submit: 'Ingresar',
+    onSubmit: async d => {
+      if (await sha256(d.clave || '') !== ADMIN_HASH) throw new Error('Contraseña incorrecta. Inténtalo de nuevo.');
+      return true;
+    },
+  });
+}
 const seesClients = u => [A, O, C].includes(u);
 const seesPayments = u => [A, O, C].includes(u);
 const go = h => { location.hash = h; };
@@ -32,11 +49,15 @@ export function login(view) {
     <div class="user-grid">${Object.entries(ROLES).map(([u, r]) => `
       <button class="user-card" data-user="${u}">
         <span class="avatar">${r.nombre.split(' ').map(w => w[0]).slice(0, 2).join('')}</span>
-        <b>${esc(r.nombre)}</b><code>${u}</code><span>${esc(r.desc)}</span>
+        <b>${esc(r.nombre)}</b><code>${u}</code><span>${esc(r.desc)}</span>${u === A ? '<small class="lock">Requiere contraseña</small>' : ''}
       </button>`).join('')}</div>
-    <p class="fine">Demostración académica: el acceso no pide contraseña. Los permisos sí son reales y los aplica PostgreSQL.</p>
+    <p class="fine">Demostración académica: solo el administrador pide contraseña. Los permisos de cada usuario son reales y los aplica PostgreSQL.</p>
   </div></section>`;
-  $$('[data-user]', view).forEach(b => b.addEventListener('click', () => { setUser(b.dataset.user); go('#/admin/panel'); }));
+  $$('[data-user]', view).forEach(b => b.addEventListener('click', async () => {
+    const u = b.dataset.user;
+    if (u === A && !(await askAdminPassword())) return;
+    setUser(u); go('#/admin/panel');
+  }));
 }
 
 /* ---------- Estructura del panel ---------- */

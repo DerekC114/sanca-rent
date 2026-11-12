@@ -1,8 +1,8 @@
 // Enrutador de Sanca Rent.
-import { init, onProgress, errorMessage } from './db.js?v=8';
-import { $, esc } from './ui.js?v=8';
-import * as pub from './public.js?v=8';
-import { admin, currentUser } from './admin.js?v=8';
+import { init, onProgress, errorMessage } from './db.js?v=9';
+import { $, esc } from './ui.js?v=9';
+import * as pub from './public.js?v=9';
+import { admin, currentUser } from './admin.js?v=9';
 
 const view = $('#view');
 const loader = $('#loader'), loaderTxt = $('#loaderTxt');

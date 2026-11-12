@@ -1,6 +1,6 @@
 // Sitio público de Sanca Rent: inicio, catálogo, reserva y consulta de reservas.
-import { as, query, PUBLIC_ROLE, errorMessage } from './db.js?v=8';
-import { $, $$, esc, money, num, fdate, parseLocal, toInput, toSql, nowWall, addDays, rentalDays, badge, code, carSvg, carPhoto, categoryPhoto, clientRules, docHint, toast, field, options, confirmDialog } from './ui.js?v=8';
+import { as, query, PUBLIC_ROLE, errorMessage } from './db.js?v=9';
+import { $, $$, esc, money, num, fdate, parseLocal, toInput, toSql, nowWall, addDays, rentalDays, badge, code, carSvg, carPhoto, categoryPhoto, clientRules, docHint, toast, field, options, confirmDialog } from './ui.js?v=9';
 
 const R = PUBLIC_ROLE;
 const go = h => { location.hash = h; };
