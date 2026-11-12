@@ -1,7 +1,7 @@
 // Panel interno de Sanca Rent. Cada operación se ejecuta con SET LOCAL ROLE del usuario elegido,
 // así que PostgreSQL aplica los permisos definidos en 05_consultas_evidencias.sql.
-import { ROLES, as, query, execAs, resetData, errorMessage } from './db.js?v=7';
-import { $, $$, esc, money, num, fdate, parseLocal, toInput, toSql, nowWall, addDays, rentalDays, badge, code, toast, modal, confirmDialog, field, options, table, clientRules, docHint } from './ui.js?v=7';
+import { ROLES, as, query, execAs, resetData, errorMessage } from './db.js?v=8';
+import { $, $$, esc, money, num, fdate, parseLocal, toInput, toSql, nowWall, addDays, rentalDays, badge, code, toast, modal, confirmDialog, field, options, table, clientRules, docHint } from './ui.js?v=8';
 
 const KEY = 'sanca-usuario';
 export const currentUser = () => { try { return sessionStorage.getItem(KEY); } catch { return null; } };

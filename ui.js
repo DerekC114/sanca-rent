@@ -83,9 +83,12 @@ const PHOTOS = {
   'kia picanto': 'Kia_Picanto_X-Line_facelift_001.jpg',
   'nissan versa': '2023_Nissan_Versa_(N18)_IMG_3105.jpg',
   'hyundai tucson': 'Hyundai_Tucson_(NX4,_SWB)_IMG_9135.jpg',
+  'mercedes-benz clase g 63 amg': 'Mercedes-AMG_G_63_(W464)_front.jpg',
+  'lamborghini revuelto': 'Lamborghini_Revuelto_Opera_Unica_001.jpg',
+  'lamborghini urus se': 'Lamborghini_Urus_SE_DSC_8524.jpg',
 };
 // Foto representativa de cada categoría (para las tarjetas del inicio)
-const CAT_PHOTO = { Compacto: 'kia picanto', Sedan: 'toyota corolla', SUV: 'hyundai tucson', Camioneta: 'toyota hilux' };
+const CAT_PHOTO = { Compacto: 'kia picanto', Sedan: 'toyota corolla', SUV: 'hyundai tucson', Camioneta: 'toyota hilux', Lujo: 'lamborghini revuelto' };
 const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim();
 export function photoFile(marca, modelo) {
   const k = norm(`${marca} ${modelo}`);

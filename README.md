@@ -51,7 +51,7 @@ El formulario impide escribir caracteres no permitidos y la base de datos lo ref
 - **Licencia:** letras, números y guion (5 a 30); debe estar vigente durante toda la reserva.
 
 ## Datos
-La base se crea en el navegador con los scripts `01`, `02`, `04`, `05`, `06`, `09`, `10` y `11`, y se guarda en
+La base se crea en el navegador con los scripts `01`, `02`, `04`, `05`, `06`, `09`, `10`, `11` y `12`, y se guarda en
 IndexedDB: lo que registres se conserva al recargar, pero **solo en ese navegador**. El administrador
 puede restablecer los datos originales en «Datos».
 
@@ -101,3 +101,6 @@ autores, bajo licencias libres (Creative Commons). Si una foto no carga, se mues
 | Kia Picanto | [Kia Picanto X-Line facelift 001.jpg](https://commons.wikimedia.org/wiki/File:Kia_Picanto_X-Line_facelift_001.jpg) |
 | Nissan Versa | [2023 Nissan Versa (N18) IMG 3105.jpg](https://commons.wikimedia.org/wiki/File:2023_Nissan_Versa_(N18)_IMG_3105.jpg) |
 | Hyundai Tucson | [Hyundai Tucson (NX4, SWB) IMG 9135.jpg](https://commons.wikimedia.org/wiki/File:Hyundai_Tucson_(NX4,_SWB)_IMG_9135.jpg) |
+| Mercedes-Benz Clase G 63 AMG | [Mercedes-AMG G 63 (W464) front.jpg](https://commons.wikimedia.org/wiki/File:Mercedes-AMG_G_63_(W464)_front.jpg) |
+| Lamborghini Revuelto | [Lamborghini Revuelto Opera Unica 001.jpg](https://commons.wikimedia.org/wiki/File:Lamborghini_Revuelto_Opera_Unica_001.jpg) |
+| Lamborghini Urus SE | [Lamborghini Urus SE DSC 8524.jpg](https://commons.wikimedia.org/wiki/File:Lamborghini_Urus_SE_DSC_8524.jpg) |

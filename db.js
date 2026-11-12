@@ -4,7 +4,7 @@ const PGLITE_URLS = [
   new URL('./index.js', import.meta.url).href,
   'https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.2.17/dist/index.js',
 ];
-const DB_NAME = 'idb://sanca-rent-v3';
+const DB_NAME = 'idb://sanca-rent-v4';
 // TIMESTAMP y DATE no tienen zona horaria: se leen como "hora de pared" (Date en UTC con la misma hora),
 // que es lo que esperan fdate/parseLocal en ui.js. Sin esto, un navegador en Colombia sumaba 5 horas.
 const wall = s => {
@@ -21,6 +21,7 @@ const SEED = [
   '09_reglas_automatizadas.sql',
   '10_validaciones_cliente.sql',
   '11_ajustes_presentacion.sql',
+  '12_flota_lujo.sql',
 ];
 
 export const ROLES = {
